@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"unicode/utf16"
 
+	"github.com/apex/log"
 	"github.com/rekby/gpt"
 	"github.com/rekby/mbr"
 	"golang.org/x/sys/unix"
@@ -71,14 +72,20 @@ func gptToDiskoPartition(p gpt.Partition, num uint, sectorSize uint) disko.Parti
 func getDiskType(udInfo disko.UdevInfo) (disko.DiskType, error) {
 	var kname = udInfo.Name
 
+	log.Infof("linux.getDiskType(): getting disk type on disk %s %+v", kname, udInfo)
+
 	if strings.HasPrefix(kname, "nvme") {
 		return disko.NVME, nil
 	}
 
 	if isKvm() {
+		log.Infof("linux.getDiskTyp(): running under kvm, check ID_SERIAL for hint")
 		if strings.HasPrefix(udInfo.Properties["ID_SERIAL"], "ssd-") {
 			return disko.SSD, nil
 		}
+		log.Infof("linux.getDiskTyp(): ID_SERIAL value %q did not have prefix 'ssd-'", udInfo.Properties["ID_SERIAL"])
+	} else {
+		log.Infof("linux.getDiskTyp(): system is not running under kvm")
 	}
 
 	bd, err := GetPartitionsBlockDevice(path.Join("/dev", kname))

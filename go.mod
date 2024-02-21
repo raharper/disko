@@ -3,6 +3,7 @@ module machinerun.io/disko
 go 1.13
 
 require (
+	github.com/apex/log v1.9.0 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/rekby/gpt v0.0.0-20200614112001-7da10aec5566
